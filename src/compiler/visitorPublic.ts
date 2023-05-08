@@ -1249,7 +1249,7 @@ const visitEachChildTable: VisitEachChildTable = {
 
     [SyntaxKind.FunctionDeclaration]: function visitEachChildOfFunctionDeclaration(node, visitor, context, nodesVisitor, nodeVisitor, tokenVisitor) {
         return context.factory.updateFunctionDeclaration(node,
-            nodesVisitor(node.modifiers, visitor, isModifier),
+            nodesVisitor(node.modifiers, visitor, isModifierLike),
             tokenVisitor ? nodeVisitor(node.asteriskToken, tokenVisitor, isAsteriskToken) : node.asteriskToken,
             nodeVisitor(node.name, visitor, isIdentifier),
             nodesVisitor(node.typeParameters, visitor, isTypeParameterDeclaration),

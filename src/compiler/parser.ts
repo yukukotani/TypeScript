@@ -4158,7 +4158,8 @@ namespace Parser {
 
     function parseIndexSignatureDeclaration(pos: number, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined): IndexSignatureDeclaration {
         const parameters = parseBracketedList<ParameterDeclaration>(ParsingContext.Parameters, () => parseParameter(/*inOuterAwaitContext*/ false), SyntaxKind.OpenBracketToken, SyntaxKind.CloseBracketToken);
-        const type = parseTypeAnnotation();
+        parseOptional(SyntaxKind.ColonToken);
+        const type = parseType();
         parseTypeMemberSemicolon();
         const node = factory.createIndexSignature(modifiers, parameters, type);
         return withJSDoc(finishNode(node, pos), hasJSDoc);

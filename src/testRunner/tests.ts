@@ -20,6 +20,7 @@ import "./unittests/reuseProgramStructure";
 import "./unittests/semver";
 import "./unittests/transform";
 import "./unittests/typeParameterIsPossiblyReferenced";
+import "./unittests/visitorPublic";
 import "./unittests/config/commandLineParsing";
 import "./unittests/config/configurationExtension";
 import "./unittests/config/convertCompilerOptionsFromJson";
