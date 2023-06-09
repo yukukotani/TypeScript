@@ -252,6 +252,7 @@ import {
     JSDocSatisfiesTag,
     JSDocSeeTag,
     JSDocSignature,
+    JSDocSuggestTag,
     JSDocTag,
     JSDocTemplateTag,
     JSDocText,
@@ -878,6 +879,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         get updateJSDocThrowsTag() { return getJSDocTypeLikeTagUpdateFunction<JSDocThrowsTag>(SyntaxKind.JSDocThrowsTag); },
         get createJSDocSatisfiesTag() { return getJSDocTypeLikeTagCreateFunction<JSDocSatisfiesTag>(SyntaxKind.JSDocSatisfiesTag); },
         get updateJSDocSatisfiesTag() { return getJSDocTypeLikeTagUpdateFunction<JSDocSatisfiesTag>(SyntaxKind.JSDocSatisfiesTag); },
+        get createJSDocSuggestTag() { return getJSDocTypeLikeTagCreateFunction<JSDocSuggestTag>(SyntaxKind.JSDocSuggestTag); },
+        get updateJSDocSuggestTag() { return getJSDocTypeLikeTagUpdateFunction<JSDocSuggestTag>(SyntaxKind.JSDocSuggestTag); },
 
         createJSDocEnumTag,
         updateJSDocEnumTag,

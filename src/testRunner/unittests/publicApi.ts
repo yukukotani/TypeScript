@@ -86,6 +86,28 @@ function test() {}`;
     });
 });
 
+// >> TODO: temporary for debugging jsdoc
+describe("unittests:: Public APIs:: suggest JSDoc", () => {
+    it("are preserved verbatim", () => {
+        const testFilePath = "/file.ts";
+        const testFileText = `
+/**
+ * @suggest {'foo' | 'bar'}
+ */
+function f<T>(p: T): T {
+}`;
+
+        const testSourceFile = ts.createSourceFile(testFilePath, testFileText, ts.ScriptTarget.Latest, /*setParentNodes*/ true);
+        const funcDec = testSourceFile.statements.find(ts.isFunctionDeclaration)!;
+        const tags = ts.getJSDocTags(funcDec);
+        assert.isDefined(tags[0]);
+        // assert.isDefined(tags[0].comment);
+        // assert.isDefined(tags[0].comment![0]);
+        // assert.isString(tags[0].comment);
+        // assert.equal(tags[0].comment as string, "Some\n text\r\n with newlines.");
+    });
+});
+
 describe("unittests:: Public APIs:: isPropertyName", () => {
     it("checks if a PrivateIdentifier is a valid property name", () => {
         const prop = ts.factory.createPrivateIdentifier("#foo");

@@ -197,6 +197,7 @@ import {
     JSDocSatisfiesTag,
     JSDocSeeTag,
     JSDocSignature,
+    JSDocSuggestTag,
     JSDocSyntaxKind,
     JSDocTag,
     JSDocTemplateTag,
@@ -1106,6 +1107,7 @@ const forEachChildTable: ForEachChildTable = {
     [SyntaxKind.JSDocThisTag]: forEachChildInJSDocTypeLikeTag,
     [SyntaxKind.JSDocEnumTag]: forEachChildInJSDocTypeLikeTag,
     [SyntaxKind.JSDocSatisfiesTag]: forEachChildInJSDocTypeLikeTag,
+    [SyntaxKind.JSDocSuggestTag]: forEachChildInJSDocTypeLikeTag,
     [SyntaxKind.JSDocThrowsTag]: forEachChildInJSDocTypeLikeTag,
     [SyntaxKind.JSDocOverloadTag]: forEachChildInJSDocTypeLikeTag,
     [SyntaxKind.JSDocSignature]: function forEachChildInJSDocSignature<T>(node: JSDocSignature, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
@@ -1201,7 +1203,7 @@ function forEachChildInJSDocParameterOrPropertyTag<T>(node: JSDocParameterTag | 
         (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
 }
 
-function forEachChildInJSDocTypeLikeTag<T>(node: JSDocReturnTag | JSDocTypeTag | JSDocThisTag | JSDocEnumTag | JSDocThrowsTag | JSDocOverloadTag | JSDocSatisfiesTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+function forEachChildInJSDocTypeLikeTag<T>(node: JSDocReturnTag | JSDocTypeTag | JSDocThisTag | JSDocEnumTag | JSDocThrowsTag | JSDocOverloadTag | JSDocSatisfiesTag | JSDocSuggestTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     return visitNode(cbNode, node.tagName) ||
         visitNode(cbNode, node.typeExpression) ||
         (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
@@ -8901,6 +8903,9 @@ namespace Parser {
                     case "see":
                         tag = parseSeeTag(start, tagName, margin, indentText);
                         break;
+                    case "suggest":
+                        tag = parseSuggestTag(start, tagName, margin, indentText);
+                        break;
                     case "exception":
                     case "throws":
                         tag = parseThrowsTag(start, tagName, margin, indentText);
@@ -9265,6 +9270,12 @@ namespace Parser {
                 const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ false);
                 const comments = margin !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), margin, indentText) : undefined;
                 return finishNode(factory.createJSDocSatisfiesTag(tagName, typeExpression, comments), start);
+            }
+
+            function parseSuggestTag(start: number, tagName: Identifier, margin: number, indentText: string): JSDocSuggestTag {
+                const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ false);
+                const comments = margin !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), margin, indentText) : undefined;
+                return finishNode(factory.createJSDocSuggestTag(tagName, typeExpression, comments), start);
             }
 
             function parseExpressionWithTypeArgumentsForAugments(): ExpressionWithTypeArguments & { expression: Identifier | PropertyAccessEntityNameExpression } {

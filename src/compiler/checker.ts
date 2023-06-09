@@ -583,6 +583,7 @@ import {
     isJSDocSatisfiesExpression,
     isJSDocSatisfiesTag,
     isJSDocSignature,
+    isJSDocSuggestTag,
     isJSDocTemplateTag,
     isJSDocTypeAlias,
     isJSDocTypeAssertion,
@@ -29198,7 +29199,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getContextualTypeForObjectLiteralElement(element: ObjectLiteralElementLike, contextFlags: ContextFlags | undefined) {
-        const objectLiteral = element.parent as ObjectLiteralExpression;
+        const objectLiteral = element.parent as ObjectLiteralExpression; // >> TODO: skip this part
         const propertyAssignmentType = isPropertyAssignment(element) && getContextualTypeForVariableLikeDeclaration(element, contextFlags);
         if (propertyAssignmentType) {
             return propertyAssignmentType;
@@ -29209,13 +29210,22 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // For a (non-symbol) computed property, there is no reason to look up the name
                 // in the type. It will just be "__computed", which does not appear in any
                 // SymbolTable.
-                const symbol = getSymbolOfDeclaration(element);
+                const symbol = getSymbolOfDeclaration(element); // >> TODO: here's the relevant part
+                if (contextFlags && contextFlags & ContextFlags.Completions) {
+                    // >> TODO: that's not entirely correct, maybe. look at `getTypeOfPropertyOfContextualType`??
+                    const prop = getPropertyOfType(type, symbol.escapedName);
+                    const suggestType = prop && getJSDocSuggestType(prop);
+                    if (suggestType) {
+                        return suggestType;
+                    }
+                }
                 return getTypeOfPropertyOfContextualType(type, symbol.escapedName, getSymbolLinks(symbol).nameType);
             }
             if (hasDynamicName(element)) {
                 const name = getNameOfDeclaration(element);
                 if (name && isComputedPropertyName(name)) {
                     const exprType = checkExpression(name.expression);
+                    // >> TODO: do similar as above
                     const propType = isTypeUsableAsPropertyName(exprType) && getTypeOfPropertyOfContextualType(type, getPropertyNameFromType(exprType));
                     if (propType) {
                         return propType;
@@ -29224,6 +29234,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             if (element.name) {
                 const nameType = getLiteralTypeFromPropertyName(element.name);
+                // >> TODO: do similar as above
                 // We avoid calling getApplicableIndexInfo here because it performs potentially expensive intersection reduction.
                 return mapType(type, t => findApplicableIndexInfo(getIndexInfosOfStructuredType(t), nameType)?.type, /*noReductions*/ true);
             }
@@ -29734,6 +29745,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             return apparentAttributesType;
         }
+    }
+
+    // >> TODO: where do I put this?
+    function getJSDocSuggestType(symbol: Symbol): Type | undefined {
+        const types = flatMap(symbol.declarations,
+            decl => getJSDocTags(decl).filter(isJSDocSuggestTag).map(tag => getTypeFromTypeNode(tag.typeExpression)));
+        return types && getUnionType(types, UnionReduction.Literal);
     }
 
     function getIntersectedSignatures(signatures: readonly Signature[]) {

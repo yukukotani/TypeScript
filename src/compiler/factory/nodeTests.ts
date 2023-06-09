@@ -110,6 +110,7 @@ import {
     JSDocSatisfiesTag,
     JSDocSeeTag,
     JSDocSignature,
+    JSDocSuggestTag,
     JSDocTemplateTag,
     JSDocThisTag,
     JSDocThrowsTag,
@@ -1188,6 +1189,10 @@ export function isJSDocSatisfiesTag(node: Node): node is JSDocSatisfiesTag {
 
 export function isJSDocThrowsTag(node: Node): node is JSDocThrowsTag {
     return node.kind === SyntaxKind.JSDocThrowsTag;
+}
+
+export function isJSDocSuggestTag(node: Node): node is JSDocSuggestTag {
+    return node.kind === SyntaxKind.JSDocSuggestTag;
 }
 
 // Synthesized list

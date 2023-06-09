@@ -2942,6 +2942,46 @@ function getContextualType(previousToken: Node, position: number, sourceFile: So
     }
 }
 
+// function getSuggestInfo(
+//     previousToken: Node,
+//     position: number,
+//     sourceFile: SourceFile,
+//     checker: TypeChecker): JSDocSuggestTag[] | undefined {
+//     const { parent } = previousToken;
+//     switch (previousToken.kind) {
+//         // >> TODO: implement all the cases
+//         // case SyntaxKind.Identifier:
+//         //     return getContextualTypeFromParent(previousToken as Identifier, checker);
+//         // case SyntaxKind.EqualsToken:
+//         //     switch (parent.kind) {
+//         //         case SyntaxKind.VariableDeclaration:
+//         //             return checker.getContextualType((parent as VariableDeclaration).initializer!); // TODO: GH#18217
+//         //         case SyntaxKind.BinaryExpression:
+//         //             return checker.getTypeAtLocation((parent as BinaryExpression).left);
+//         //         case SyntaxKind.JsxAttribute:
+//         //             return checker.getContextualTypeForJsxAttribute(parent as JsxAttribute);
+//         //         default:
+//         //             return undefined;
+//         //     }
+//         // case SyntaxKind.NewKeyword:
+//         //     return checker.getContextualType(parent as Expression);
+//         // case SyntaxKind.CaseKeyword:
+//         //     const caseClause = tryCast(parent, isCaseClause);
+//         //     return caseClause ? getSwitchedType(caseClause, checker) : undefined;
+//         // case SyntaxKind.OpenBraceToken:
+//         //     return isJsxExpression(parent) && !isJsxElement(parent.parent) && !isJsxFragment(parent.parent) ? checker.getContextualTypeForJsxAttribute(parent.parent) : undefined;
+//         default:
+//             // const argInfo = SignatureHelp.getArgumentInfoForCompletions(previousToken, position, sourceFile);
+//             // return argInfo ?
+//             //     // At `,`, treat this as the next argument after the comma.
+//             //     checker.getContextualTypeForArgumentAtIndex(argInfo.invocation, argInfo.argumentIndex + (previousToken.kind === SyntaxKind.CommaToken ? 1 : 0)) :
+//             //     isEqualityOperatorKind(previousToken.kind) && isBinaryExpression(parent) && isEqualityOperatorKind(parent.operatorToken.kind) ?
+//             //         // completion at `x ===/**/` should be for the right side
+//             //         checker.getTypeAtLocation(parent.left) :
+//             //         checker.getContextualType(previousToken as Expression, ContextFlags.Completions) || checker.getContextualType(previousToken as Expression);
+//     }
+// }
+
 function getFirstSymbolInChain(symbol: Symbol, enclosingDeclaration: Node, checker: TypeChecker): Symbol | undefined {
     const chain = checker.getAccessibleSymbolChain(symbol, enclosingDeclaration, /*meaning*/ SymbolFlags.All, /*useOnlyExternalAliasing*/ false);
     if (chain) return first(chain);

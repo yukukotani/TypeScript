@@ -443,6 +443,7 @@ export const enum SyntaxKind {
     JSDocPropertyTag,
     JSDocThrowsTag,
     JSDocSatisfiesTag,
+    JSDocSuggestTag,
 
     // Synthesized list
     SyntaxList,
@@ -1025,6 +1026,7 @@ export type ForEachChildNodes =
     | JSDocOverrideTag
     | JSDocSatisfiesTag
     | JSDocOverloadTag
+    | JSDocSuggestTag
     ;
 
 /** @internal */
@@ -4099,6 +4101,11 @@ export interface JSDocTypeLiteral extends JSDocType, Declaration {
 
 export interface JSDocSatisfiesTag extends JSDocTag {
     readonly kind: SyntaxKind.JSDocSatisfiesTag;
+    readonly typeExpression: JSDocTypeExpression;
+}
+
+export interface JSDocSuggestTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocSuggestTag;
     readonly typeExpression: JSDocTypeExpression;
 }
 
@@ -8730,6 +8737,8 @@ export interface NodeFactory {
     updateJSDocThrowsTag(node: JSDocThrowsTag, tagName: Identifier | undefined, typeExpression: JSDocTypeExpression | undefined, comment?: string | NodeArray<JSDocComment> | undefined): JSDocThrowsTag;
     createJSDocSatisfiesTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocSatisfiesTag;
     updateJSDocSatisfiesTag(node: JSDocSatisfiesTag, tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment: string | NodeArray<JSDocComment> | undefined): JSDocSatisfiesTag;
+    createJSDocSuggestTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocSuggestTag;
+    updateJSDocSuggestTag(node: JSDocSuggestTag, tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment: string | NodeArray<JSDocComment> | undefined): JSDocSuggestTag;
     createJSDocText(text: string): JSDocText;
     updateJSDocText(node: JSDocText, text: string): JSDocText;
     createJSDocComment(comment?: string | NodeArray<JSDocComment> | undefined, tags?: readonly JSDocTag[] | undefined): JSDoc;
