@@ -252,6 +252,7 @@ import {
     JSDocSatisfiesTag,
     JSDocSeeTag,
     JSDocSignature,
+    JSDocSuggestPropertyTag,
     JSDocSuggestTag,
     JSDocTag,
     JSDocTemplateTag,
@@ -852,6 +853,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         updateJSDocLinkCode,
         createJSDocLinkPlain,
         updateJSDocLinkPlain,
+        createJSDocSuggestPropertyTag,
+        updateJSDocSuggestPropertyTag,
         // lazily load factory members for JSDoc tags with similar structure
         get createJSDocTypeTag() { return getJSDocTypeLikeTagCreateFunction<JSDocTypeTag>(SyntaxKind.JSDocTypeTag); },
         get updateJSDocTypeTag() { return getJSDocTypeLikeTagUpdateFunction<JSDocTypeTag>(SyntaxKind.JSDocTypeTag); },
@@ -5306,6 +5309,40 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     function updateJSDocLinkPlain(node: JSDocLinkPlain, name: EntityName | JSDocMemberName | undefined, text: string): JSDocLinkPlain {
         return node.name !== name
             ? update(createJSDocLinkPlain(name, text), node)
+            : node;
+    }
+
+    // @api
+    function createJSDocSuggestPropertyTag(
+        tagName: Identifier | undefined,
+        name: EntityName,
+        isBracketed: boolean,
+        typeExpression: JSDocTypeExpression,
+        isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocSuggestPropertyTag {
+        const node = createBaseJSDocTagDeclaration<JSDocSuggestPropertyTag>(SyntaxKind.JSDocSuggestPropertyTag, tagName ?? createIdentifier("suggest"), comment);
+        node.typeExpression = typeExpression;
+        node.name = name;
+        node.isNameFirst = !!isNameFirst;
+        node.isBracketed = isBracketed;
+        return node;
+    }
+
+    // @api
+    function updateJSDocSuggestPropertyTag(
+        node: JSDocSuggestPropertyTag,
+        tagName: Identifier = getDefaultTagName(node),
+        name: EntityName,
+        isBracketed: boolean,
+        typeExpression: JSDocTypeExpression,
+        isNameFirst: boolean,
+        comment: string | NodeArray<JSDocComment> | undefined): JSDocSuggestPropertyTag {
+        return node.tagName !== tagName
+            || node.name !== name
+            || node.isBracketed !== isBracketed
+            || node.typeExpression !== typeExpression
+            || node.isNameFirst !== isNameFirst
+            || node.comment !== comment
+            ? update(createJSDocSuggestPropertyTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment), node)
             : node;
     }
 

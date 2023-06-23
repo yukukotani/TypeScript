@@ -1,15 +1,15 @@
 === /tests/cases/fourslash/foo.ts ===
-// interface Foo {
-//     /**
-//      * @suggest {"aaAAa"}
-//      */
-//     bar: string | number;
-// }
-// const f: Foo = {
-//     bar: 
-//          ^
+// /**
+//  * 
+//  * @param arg
+//  * @suggest {"ooOOo"} arg
+//  */
+// function foo(arg: string) {}
+// foo();
+//     ^
 // | ----------------------------------------------------------------------
-// | "aaAAa"
+// | "ooOOo"
+// | function foo(arg: string): void
 // | abstract
 // | any
 // | interface Array<T>
@@ -147,30 +147,105 @@
 // | function escape(string: string): string
 // | function unescape(string: string): string
 // | ----------------------------------------------------------------------
-// };
+// foo("");
+//      
+// | ----------------------------------------------------------------------
+// | ooOOo
+// | ----------------------------------------------------------------------
 
 [
   {
     "marker": {
       "fileName": "/tests/cases/fourslash/foo.ts",
-      "position": 112,
-      "name": ""
+      "position": 85,
+      "name": "0"
     },
     "item": {
       "flags": 0,
       "isGlobalCompletion": false,
       "isMemberCompletion": false,
-      "isNewIdentifierLocation": false,
+      "isNewIdentifierLocation": true,
       "entries": [
         {
-          "name": "\"aaAAa\"",
+          "name": "\"ooOOo\"",
           "kind": "string",
           "kindModifiers": "",
           "sortText": "11",
           "displayParts": [
             {
-              "text": "\"aaAAa\"",
+              "text": "\"ooOOo\"",
               "kind": "stringLiteral"
+            }
+          ]
+        },
+        {
+          "name": "foo",
+          "kind": "function",
+          "kindModifiers": "",
+          "sortText": "11",
+          "displayParts": [
+            {
+              "text": "function",
+              "kind": "keyword"
+            },
+            {
+              "text": " ",
+              "kind": "space"
+            },
+            {
+              "text": "foo",
+              "kind": "functionName"
+            },
+            {
+              "text": "(",
+              "kind": "punctuation"
+            },
+            {
+              "text": "arg",
+              "kind": "parameterName"
+            },
+            {
+              "text": ":",
+              "kind": "punctuation"
+            },
+            {
+              "text": " ",
+              "kind": "space"
+            },
+            {
+              "text": "string",
+              "kind": "keyword"
+            },
+            {
+              "text": ")",
+              "kind": "punctuation"
+            },
+            {
+              "text": ":",
+              "kind": "punctuation"
+            },
+            {
+              "text": " ",
+              "kind": "space"
+            },
+            {
+              "text": "void",
+              "kind": "keyword"
+            }
+          ],
+          "documentation": [],
+          "tags": [
+            {
+              "name": "param",
+              "text": [
+                {
+                  "text": "arg",
+                  "kind": "text"
+                }
+              ]
+            },
+            {
+              "name": "suggest"
             }
           ]
         },
@@ -3523,6 +3598,40 @@
                   "kind": "text"
                 }
               ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "marker": {
+      "fileName": "/tests/cases/fourslash/foo.ts",
+      "position": 93,
+      "name": "1"
+    },
+    "item": {
+      "isGlobalCompletion": false,
+      "isMemberCompletion": false,
+      "isNewIdentifierLocation": false,
+      "optionalReplacementSpan": {
+        "start": 93,
+        "length": 0
+      },
+      "entries": [
+        {
+          "name": "ooOOo",
+          "kindModifiers": "",
+          "kind": "string",
+          "sortText": "11",
+          "replacementSpan": {
+            "start": 93,
+            "length": 0
+          },
+          "displayParts": [
+            {
+              "text": "ooOOo",
+              "kind": "text"
             }
           ]
         }

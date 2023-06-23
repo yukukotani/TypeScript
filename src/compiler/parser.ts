@@ -197,6 +197,7 @@ import {
     JSDocSatisfiesTag,
     JSDocSeeTag,
     JSDocSignature,
+    JSDocSuggestPropertyTag,
     JSDocSuggestTag,
     JSDocSyntaxKind,
     JSDocTag,
@@ -1108,6 +1109,7 @@ const forEachChildTable: ForEachChildTable = {
     [SyntaxKind.JSDocEnumTag]: forEachChildInJSDocTypeLikeTag,
     [SyntaxKind.JSDocSatisfiesTag]: forEachChildInJSDocTypeLikeTag,
     [SyntaxKind.JSDocSuggestTag]: forEachChildInJSDocTypeLikeTag,
+    [SyntaxKind.JSDocSuggestPropertyTag]: forEachChildInJSDocParameterOrPropertyTag,
     [SyntaxKind.JSDocThrowsTag]: forEachChildInJSDocTypeLikeTag,
     [SyntaxKind.JSDocOverloadTag]: forEachChildInJSDocTypeLikeTag,
     [SyntaxKind.JSDocSignature]: function forEachChildInJSDocSignature<T>(node: JSDocSignature, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
@@ -1195,7 +1197,7 @@ function forEachChildInOptionalRestOrJSDocParameterModifier<T>(node: OptionalTyp
     return visitNode(cbNode, node.type);
 }
 
-function forEachChildInJSDocParameterOrPropertyTag<T>(node: JSDocParameterTag | JSDocPropertyTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+function forEachChildInJSDocParameterOrPropertyTag<T>(node: JSDocParameterTag | JSDocPropertyTag | JSDocSuggestPropertyTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     return visitNode(cbNode, node.tagName) ||
         (node.isNameFirst
             ? visitNode(cbNode, node.name) || visitNode(cbNode, node.typeExpression)
@@ -8904,7 +8906,8 @@ namespace Parser {
                         tag = parseSeeTag(start, tagName, margin, indentText);
                         break;
                     case "suggest":
-                        tag = parseSuggestTag(start, tagName, margin, indentText);
+                        // tag = parseSuggestTag(start, tagName, margin, indentText);
+                        tag = parseSuggestPropertyTag(start, tagName, margin);
                         break;
                     case "exception":
                     case "throws":
@@ -9272,10 +9275,35 @@ namespace Parser {
                 return finishNode(factory.createJSDocSatisfiesTag(tagName, typeExpression, comments), start);
             }
 
-            function parseSuggestTag(start: number, tagName: Identifier, margin: number, indentText: string): JSDocSuggestTag {
-                const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ false);
-                const comments = margin !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), margin, indentText) : undefined;
-                return finishNode(factory.createJSDocSuggestTag(tagName, typeExpression, comments), start);
+            // function parseSuggestTag(start: number, tagName: Identifier, margin: number, indentText: string): JSDocSuggestTag {
+            //     const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ false);
+            //     const comments = margin !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), margin, indentText) : undefined;
+            //     return finishNode(factory.createJSDocSuggestTag(tagName, typeExpression, comments), start);
+            // }
+            // Like `parseParameterOrPropertyTag`, but type is mandatory
+            function parseSuggestPropertyTag(start: number, tagName: Identifier, margin: number): JSDocSuggestPropertyTag {
+                let typeExpression = tryParseTypeExpression();
+                let isNameFirst = !typeExpression;
+                skipWhitespaceOrAsterisk();
+
+                const { name, isBracketed } = parseBracketNameInPropertyAndParamTag();
+                const indentText = skipWhitespaceOrAsterisk();
+
+                if (isNameFirst && !lookAhead(parseJSDocLinkPrefix)) {
+                    typeExpression = parseJSDocTypeExpression();
+                }
+
+                const comment = parseTrailingTagComments(start, getNodePos(), margin, indentText);
+                return finishNode(
+                    factory.createJSDocSuggestPropertyTag(
+                        tagName,
+                        name,
+                        isBracketed,
+                        typeExpression!,
+                        isNameFirst,
+                        comment,
+                    ),
+                    start);
             }
 
             function parseExpressionWithTypeArgumentsForAugments(): ExpressionWithTypeArguments & { expression: Identifier | PropertyAccessEntityNameExpression } {

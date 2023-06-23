@@ -136,6 +136,7 @@ import {
     isJSDocReturnTag,
     isJSDocSatisfiesTag,
     isJSDocSignature,
+    isJSDocSuggestPropertyTag,
     isJSDocTemplateTag,
     isJSDocThisTag,
     isJSDocTypeAlias,
@@ -184,6 +185,7 @@ import {
     JSDocReturnTag,
     JSDocSatisfiesTag,
     JSDocSignature,
+    JSDocSuggestPropertyTag,
     JSDocTag,
     JSDocTemplateTag,
     JSDocThisTag,
@@ -994,6 +996,20 @@ export function getJSDocParameterTags(param: ParameterDeclaration): readonly JSD
 /** @internal */
 export function getJSDocParameterTagsNoCache(param: ParameterDeclaration): readonly JSDocParameterTag[] {
     return getJSDocParameterTagsWorker(param, /*noCache*/ true);
+}
+
+export function getJSDocSuggestParamTags(param: ParameterDeclaration): readonly JSDocSuggestPropertyTag[] {
+    if (param.name) {
+        if (isIdentifier(param.name)) {
+            const name = param.name.escapedText;
+            return getJSDocTagsWorker(param.parent).filter((tag): tag is JSDocSuggestPropertyTag => {
+                return isJSDocSuggestPropertyTag(tag) && isIdentifier(tag.name) && tag.name.escapedText === name;
+            });
+        }
+        // >> TODO: implement positional matching
+    }
+
+    return emptyArray;
 }
 
 function getJSDocTypeParameterTagsWorker(param: TypeParameterDeclaration, noCache?: boolean): readonly JSDocTemplateTag[] {

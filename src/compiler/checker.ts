@@ -302,6 +302,7 @@ import {
     getJSDocParameterTags,
     getJSDocRoot,
     getJSDocSatisfiesExpressionType,
+    getJSDocSuggestParamTags,
     getJSDocTags,
     getJSDocThisTag,
     getJSDocType,
@@ -583,7 +584,8 @@ import {
     isJSDocSatisfiesExpression,
     isJSDocSatisfiesTag,
     isJSDocSignature,
-    isJSDocSuggestTag,
+    isJSDocSuggestPropertyTag,
+    // isJSDocSuggestTag,
     isJSDocTemplateTag,
     isJSDocTypeAlias,
     isJSDocTypeAssertion,
@@ -1627,9 +1629,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const node = getParseTreeNode(nodeIn, isObjectLiteralElementLike);
             return node ? getContextualTypeForObjectLiteralElement(node, /*contextFlags*/ undefined) : undefined;
         },
-        getContextualTypeForArgumentAtIndex: (nodeIn, argIndex) => {
+        getContextualTypeForArgumentAtIndex: (nodeIn, argIndex, contextFlags) => {
             const node = getParseTreeNode(nodeIn, isCallLikeExpression);
-            return node && getContextualTypeForArgumentAtIndex(node, argIndex);
+            return node && getContextualTypeForArgumentAtIndex(node, argIndex, contextFlags);
         },
         getContextualTypeForJsxAttribute: (nodeIn) => {
             const node = getParseTreeNode(nodeIn, isJsxAttributeLike);
@@ -28956,7 +28958,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return argIndex === -1 ? undefined : getContextualTypeForArgumentAtIndex(callTarget, argIndex);
     }
 
-    function getContextualTypeForArgumentAtIndex(callTarget: CallLikeExpression, argIndex: number): Type {
+    function getContextualTypeForArgumentAtIndex(callTarget: CallLikeExpression, argIndex: number, contextFlags?: ContextFlags): Type {
         if (isImportCall(callTarget)) {
             return argIndex === 0 ? stringType :
                 argIndex === 1 ? getGlobalImportCallOptionsType(/*reportErrors*/ false) :
@@ -28973,7 +28975,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const restIndex = signature.parameters.length - 1;
         return signatureHasRestParameter(signature) && argIndex >= restIndex ?
             getIndexedAccessType(getTypeOfSymbol(signature.parameters[restIndex]), getNumberLiteralType(argIndex - restIndex), AccessFlags.Contextual) :
-            getTypeAtPosition(signature, argIndex);
+            getTypeAtPosition(signature, argIndex, contextFlags);
+        // if (signatureHasRestParameter(signature) && argIndex >= restIndex) {  // >> TODO: also handle this case
+        //     return getIndexedAccessType(getTypeOfSymbol(signature.parameters[restIndex]), getNumberLiteralType(argIndex - restIndex), AccessFlags.Contextual);
+        // }
+        // else {
+        //     return contextFlags && contextFlags & ContextFlags.Completions ?
+        //         getJSDocSuggestType(signature.parameters[argIndex]) || getTypeAtPosition(signature, argIndex) :
+        //         getTypeAtPosition(signature, argIndex);
+        // }
     }
 
     function getContextualTypeForDecorator(decorator: Decorator): Type | undefined {
@@ -29750,7 +29760,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     // >> TODO: where do I put this?
     function getJSDocSuggestType(symbol: Symbol): Type | undefined {
         const types = flatMap(symbol.declarations,
-            decl => getJSDocTags(decl).filter(isJSDocSuggestTag).map(tag => getTypeFromTypeNode(tag.typeExpression)));
+            // decl => getJSDocTags(decl).filter(isJSDocSuggestTag).map(tag => getTypeFromTypeNode(tag.typeExpression)));
+            decl => {
+                if (isParameter(decl)) {
+                    return getJSDocSuggestParamTags(decl).map(tag => getTypeFromTypeNode(tag.typeExpression));
+                }
+                return getJSDocTags(decl).filter(isJSDocSuggestPropertyTag).map(tag => getTypeFromTypeNode(tag.typeExpression))
+            }
+        );
         return types && getUnionType(types, UnionReduction.Literal);
     }
 
@@ -34866,16 +34883,19 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return restParameter.valueDeclaration && isValidDeclarationForTupleLabel(restParameter.valueDeclaration) ? restParameter.valueDeclaration : undefined;
     }
 
-    function getTypeAtPosition(signature: Signature, pos: number): Type {
-        return tryGetTypeAtPosition(signature, pos) || anyType;
+    function getTypeAtPosition(signature: Signature, pos: number, contextFlags?: ContextFlags): Type {
+        return tryGetTypeAtPosition(signature, pos, contextFlags) || anyType;
     }
 
-    function tryGetTypeAtPosition(signature: Signature, pos: number): Type | undefined {
+    function tryGetTypeAtPosition(signature: Signature, pos: number, contextFlags?: ContextFlags): Type | undefined {
         const paramCount = signature.parameters.length - (signatureHasRestParameter(signature) ? 1 : 0);
         if (pos < paramCount) {
+            if (contextFlags && contextFlags & ContextFlags.Completions) {
+                return getJSDocSuggestType(signature.parameters[pos]) || getTypeOfParameter(signature.parameters[pos]);
+            }
             return getTypeOfParameter(signature.parameters[pos]);
         }
-        if (signatureHasRestParameter(signature)) {
+        if (signatureHasRestParameter(signature)) {  // >> TODO: also handle this case
             // We want to return the value undefined for an out of bounds parameter position,
             // so we need to check bounds here before calling getIndexedAccessType (which
             // otherwise would return the type 'undefined').

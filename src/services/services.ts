@@ -322,6 +322,7 @@ import {
     updateSourceFile,
     UserPreferences,
     VariableDeclaration,
+    ContextFlags,
 } from "./_namespaces/ts";
 import * as NavigateTo from "./_namespaces/ts.NavigateTo";
 import * as NavigationBar from "./_namespaces/ts.NavigationBar";
@@ -912,8 +913,8 @@ class SignatureObject implements Signature {
     getReturnType(): Type {
         return this.checker.getReturnTypeOfSignature(this);
     }
-    getTypeParameterAtPosition(pos: number): Type {
-        const type = this.checker.getParameterType(this, pos);
+    getTypeParameterAtPosition(pos: number, contextFlags?: ContextFlags): Type {
+        const type = this.checker.getParameterType(this, pos, contextFlags);
         if (type.isIndexType() && isThisTypeParameter(type.type)) {
             const constraint = type.type.getConstraint();
             if (constraint) {

@@ -147,7 +147,7 @@ declare module "../compiler/types" {
         getDeclaration(): SignatureDeclaration;
         getTypeParameters(): TypeParameter[] | undefined;
         getParameters(): Symbol[];
-        getTypeParameterAtPosition(pos: number): Type;
+        getTypeParameterAtPosition(pos: number, contextFlags?: ContextFlags): Type;
         getReturnType(): Type;
         getDocumentationComment(typeChecker: TypeChecker | undefined): SymbolDisplayPart[];
         getJsDocTags(): JSDocTagInfo[];

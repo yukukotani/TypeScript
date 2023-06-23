@@ -486,8 +486,8 @@ function getStringLiteralCompletionsFromSignature(call: CallLikeExpression, arg:
     checker.getResolvedSignatureForStringLiteralCompletions(call, editingArgument, candidates);
     const types = flatMap(candidates, candidate => {
         if (!signatureHasRestParameter(candidate) && argumentInfo.argumentCount > candidate.parameters.length) return;
-        let type = candidate.getTypeParameterAtPosition(argumentInfo.argumentIndex);
-        if (isJsxOpeningLikeElement(call)) {
+        let type = candidate.getTypeParameterAtPosition(argumentInfo.argumentIndex, ContextFlags.Completions);
+        if (isJsxOpeningLikeElement(call)) { // >> TODO: investigate this
             const propType = checker.getTypeOfPropertyOfType(type, getTextOfJsxAttributeName((editingArgument as JsxAttribute).name));
             if (propType) {
                 type = propType;
