@@ -180,7 +180,6 @@ export interface ResolutionWithFailedLookupLocations {
     failedLookupLocations?: string[];
     affectingLocations?: string[];
     isInvalidated?: boolean;
-    refCount?: number;
     // Files that have this resolution using
     files?: Set<Path>;
     node10Result?: string;
@@ -1123,30 +1122,25 @@ export function createResolutionCache(
         getResolutionWithResolvedFileName: GetResolutionWithResolvedFileName<T, R>,
         deferWatchingNonRelativeResolution: boolean,
     ) {
-        if (resolution.refCount) {
-            resolution.refCount++;
-            Debug.assertIsDefined(resolution.files);
+        (resolution.files ??= new Set()).add(filePath);
+        if (resolution.files.size !== 1) return;
+
+        if (resolution.globalCacheResolution) resolutionsResolvedWithGlobalCache++;
+        else if (resolution.globalCacheResolution === false) resolutionsResolvedWithoutGlobalCache++;
+
+        if (!deferWatchingNonRelativeResolution || isExternalModuleNameRelative(name)) {
+            watchFailedLookupLocationOfResolution(resolution);
         }
         else {
-            resolution.refCount = 1;
-            if (resolution.globalCacheResolution) resolutionsResolvedWithGlobalCache++;
-            else if (resolution.globalCacheResolution === false) resolutionsResolvedWithoutGlobalCache++;
-            Debug.assert(!resolution.files?.size); // This resolution shouldnt be referenced by any file yet
-            if (!deferWatchingNonRelativeResolution || isExternalModuleNameRelative(name)) {
-                watchFailedLookupLocationOfResolution(resolution);
-            }
-            else {
-                nonRelativeExternalModuleResolutions.add(resolution);
-            }
-            const resolved = getResolutionWithResolvedFileName(resolution);
-            if (resolved && resolved.resolvedFileName) {
-                const key = resolutionHost.toPath(resolved.resolvedFileName);
-                let resolutions = resolvedFileToResolution.get(key);
-                if (!resolutions) resolvedFileToResolution.set(key, resolutions = new Set());
-                resolutions.add(resolution);
-            }
+            nonRelativeExternalModuleResolutions.add(resolution);
         }
-        (resolution.files ??= new Set()).add(filePath);
+        const resolved = getResolutionWithResolvedFileName(resolution);
+        if (resolved && resolved.resolvedFileName) {
+            const key = resolutionHost.toPath(resolved.resolvedFileName);
+            let resolutions = resolvedFileToResolution.get(key);
+            if (!resolutions) resolvedFileToResolution.set(key, resolutions = new Set());
+            resolutions.add(resolution);
+        }
     }
 
     function watchFailedLookupLocation(failedLookupLocation: string, setAtRoot: boolean) {
@@ -1173,7 +1167,7 @@ export function createResolutionCache(
     }
 
     function watchFailedLookupLocationOfResolution(resolution: ResolutionWithFailedLookupLocations) {
-        Debug.assert(!!resolution.refCount);
+        Debug.assert(!!resolution.files?.size);
 
         const { failedLookupLocations, affectingLocations, node10Result } = resolution;
         if (!failedLookupLocations?.length && !affectingLocations?.length && !node10Result) return;
@@ -1194,7 +1188,7 @@ export function createResolutionCache(
     }
 
     function watchAffectingLocationsOfResolution(resolution: ResolutionWithFailedLookupLocations, addToResolutionsWithOnlyAffectingLocations: boolean) {
-        Debug.assert(!!resolution.refCount);
+        Debug.assert(!!resolution.files?.size);
         const { affectingLocations } = resolution;
         if (!affectingLocations?.length) return;
         if (addToResolutionsWithOnlyAffectingLocations) resolutionsWithOnlyAffectingLocations.add(resolution);
@@ -1314,12 +1308,12 @@ export function createResolutionCache(
         syncDirWatcherRemove?: boolean,
     ) {
         Debug.checkDefined(resolution.files).delete(filePath);
-        resolution.refCount!--;
-        if (resolution.refCount) {
-            return;
-        }
+        if (resolution.files!.size) return;
+        resolution.files = undefined;
+
         if (resolution.globalCacheResolution) resolutionsResolvedWithGlobalCache--;
         if (resolution.globalCacheResolution === false) resolutionsResolvedWithoutGlobalCache--;
+
         const resolved = getResolutionWithResolvedFileName(resolution);
         if (resolved && resolved.resolvedFileName) {
             const key = resolutionHost.toPath(resolved.resolvedFileName);
