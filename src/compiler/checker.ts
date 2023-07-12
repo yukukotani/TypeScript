@@ -769,6 +769,7 @@ import {
     JSDocPublicTag,
     JSDocSatisfiesTag,
     JSDocSignature,
+    JSDocSuggestPropertyTag,
     JSDocTemplateTag,
     JSDocTypeAssertion,
     JSDocTypedefTag,
@@ -28782,6 +28783,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getContextualTypeForVariableLikeDeclaration(declaration: VariableLikeDeclaration, contextFlags: ContextFlags | undefined): Type | undefined {
+        if (contextFlags && contextFlags & ContextFlags.Completions) {
+            const suggestType = getJSDocSuggestTypeOfDeclaration(declaration);
+            if (suggestType) {
+                return suggestType;
+            }
+        }
         const typeNode = getEffectiveTypeAnnotationNode(declaration) || (isInJSFile(declaration) ? tryGetJSDocSatisfiesTypeNode(declaration) : undefined);
         if (typeNode) {
             return getTypeFromTypeNode(typeNode);
@@ -29758,17 +29765,23 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     // >> TODO: where do I put this?
+    // >> TODO: `getTypeFromTypeNode` can fail unless we're gonna error on wrong type syntax.
+    // >> completions should not crash if this call fails
     function getJSDocSuggestType(symbol: Symbol): Type | undefined {
-        const types = flatMap(symbol.declarations,
-            // decl => getJSDocTags(decl).filter(isJSDocSuggestTag).map(tag => getTypeFromTypeNode(tag.typeExpression)));
-            decl => {
-                if (isParameter(decl)) {
-                    return getJSDocSuggestParamTags(decl).map(tag => getTypeFromTypeNode(tag.typeExpression));
-                }
-                return getJSDocTags(decl).filter(isJSDocSuggestPropertyTag).map(tag => getTypeFromTypeNode(tag.typeExpression))
-            }
+        const types = flatMap(
+            symbol.declarations,
+            decl => getJSDocSuggestTags(decl).map(tag => getTypeFromTypeNode(tag.typeExpression))
         );
-        return types && getUnionType(types, UnionReduction.Literal);
+        return types.length ? getUnionType(types, UnionReduction.Literal) : undefined;
+    }
+
+    function getJSDocSuggestTypeOfDeclaration(decl: Declaration): Type | undefined {
+        const types = getJSDocSuggestTags(decl).map(tag => getTypeFromTypeNode(tag.typeExpression));
+        return types.length ? getUnionType(types, UnionReduction.Literal) : undefined;
+    }
+
+    function getJSDocSuggestTags(decl: Declaration): readonly JSDocSuggestPropertyTag[] {
+        return isParameter(decl) ? getJSDocSuggestParamTags(decl) : getJSDocTags(decl).filter(isJSDocSuggestPropertyTag);
     }
 
     function getIntersectedSignatures(signatures: readonly Signature[]) {

@@ -2915,7 +2915,7 @@ function getContextualType(previousToken: Node, position: number, sourceFile: So
         case SyntaxKind.EqualsToken:
             switch (parent.kind) {
                 case SyntaxKind.VariableDeclaration:
-                    return checker.getContextualType((parent as VariableDeclaration).initializer!); // TODO: GH#18217
+                    return checker.getContextualType((parent as VariableDeclaration).initializer!, ContextFlags.Completions); // TODO: GH#18217
                 case SyntaxKind.BinaryExpression:
                     return checker.getTypeAtLocation((parent as BinaryExpression).left);
                 case SyntaxKind.JsxAttribute:

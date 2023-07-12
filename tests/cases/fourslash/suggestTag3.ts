@@ -5,7 +5,11 @@
 //// /**
 ////  * @suggest {"eeeeh"} x
 ////  */
-//// let x: string = /*0*/
+//// let x: string = /*0*/;
+//// /**
+////  * @suggest {"eeeeh"} y
+////  */
+//// let y: string = "/*1*/"
 
 
 verify.baselineCompletions();
