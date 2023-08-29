@@ -7,6 +7,7 @@ import {
     Declaration,
     emptyArray,
     Expression,
+    getBaseFileName,
     getContainerNode,
     getNameOfDeclaration,
     getNodeKind,
@@ -16,12 +17,14 @@ import {
     ImportClause,
     ImportEqualsDeclaration,
     ImportSpecifier,
+    isExternalOrCommonJsModule,
     isPropertyAccessExpression,
     isPropertyNameLiteral,
     NavigateToItem,
     Node,
     PatternMatcher,
     PatternMatchKind,
+    removeFileExtension,
     ScriptElementKind,
     SourceFile,
     SyntaxKind,
@@ -129,6 +132,12 @@ function getContainers(declaration: Declaration): readonly string[] {
     let container = getContainerNode(declaration);
 
     while (container) {
+        if (container.kind === SyntaxKind.SourceFile) {
+            if (isExternalOrCommonJsModule(container as SourceFile)) {
+                containers.push(removeFileExtension(getBaseFileName((container as SourceFile).fileName)));
+            }
+            break;
+        }
         if (!tryAddSingleDeclarationName(container, containers)) {
             return emptyArray;
         }
