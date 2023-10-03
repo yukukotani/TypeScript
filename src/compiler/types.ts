@@ -4686,7 +4686,7 @@ export interface Program extends ScriptReferenceHost {
      */
     getMissingFilePaths(): Map<Path, string>;
     /** @internal */
-    getModuleResolutionCache(): ModuleResolutionCache | undefined;
+    getPackageJsonInfoCache(): PackageJsonInfoCache | undefined;
     /** @internal */
     getFilesByNameMap(): Map<Path, SourceFile | false | undefined>;
 

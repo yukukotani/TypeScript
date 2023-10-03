@@ -1865,6 +1865,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     resolvedLibProcessing = undefined;
     resolvedModulesProcessing = undefined;
     resolvedTypeReferenceDirectiveNamesProcessing = undefined;
+    const packageJsonCache = moduleResolutionCache?.getPackageJsonInfoCache();
+    moduleResolutionCache = undefined;
 
     const program: Program = {
         getRootFileNames: () => rootNames,
@@ -1872,7 +1874,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getSourceFileByPath,
         getSourceFiles: () => files,
         getMissingFilePaths: () => missingFileNames,
-        getModuleResolutionCache: () => moduleResolutionCache,
+        getPackageJsonInfoCache: () => packageJsonCache,
         getFilesByNameMap: () => filesByName,
         getCompilerOptions: () => options,
         getSyntacticDiagnostics,
