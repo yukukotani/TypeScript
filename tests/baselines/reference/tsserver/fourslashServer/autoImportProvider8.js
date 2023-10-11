@@ -126,16 +126,6 @@ Info seq  [hh:mm:ss:mss] 	Files (8)
 	  Matched by default include pattern '**/*'
 
 Info seq  [hh:mm:ss:mss] -----------------------------------------------
-Info seq  [hh:mm:ss:mss] Calculating unresolved imports list of program:: Files:: 8
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.decorators.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.decorators.legacy.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /packages/mylib/mysubdir/myclass.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /packages/mylib/mysubdir/myclass2.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /packages/mylib/mysubdir/index.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /packages/mylib/index.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /src/index.ts:: []
-Info seq  [hh:mm:ss:mss] Calculating unresolved imports list of program:: Files:: 8 Done: []
 Info seq  [hh:mm:ss:mss] event:
     {
       "seq": 0,

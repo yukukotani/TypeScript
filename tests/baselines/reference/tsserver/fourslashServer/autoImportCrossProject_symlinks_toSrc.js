@@ -124,12 +124,6 @@ Info seq  [hh:mm:ss:mss] 	Files (4)
 	  Matched by default include pattern '**/*'
 
 Info seq  [hh:mm:ss:mss] -----------------------------------------------
-Info seq  [hh:mm:ss:mss] Calculating unresolved imports list of program:: Files:: 4
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.decorators.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.decorators.legacy.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /packages/app/src/index.ts:: []
-Info seq  [hh:mm:ss:mss] Calculating unresolved imports list of program:: Files:: 4 Done: []
 Info seq  [hh:mm:ss:mss] event:
     {
       "seq": 0,
@@ -178,13 +172,6 @@ Info seq  [hh:mm:ss:mss] 	Files (5)
 	  Matched by default include pattern '**/*'
 
 Info seq  [hh:mm:ss:mss] -----------------------------------------------
-Info seq  [hh:mm:ss:mss] Calculating unresolved imports list of program:: Files:: 5
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.decorators.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.decorators.legacy.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /packages/dep/src/sub/folder/index.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /packages/dep/src/index.ts:: []
-Info seq  [hh:mm:ss:mss] Calculating unresolved imports list of program:: Files:: 5 Done: []
 Info seq  [hh:mm:ss:mss] event:
     {
       "seq": 0,

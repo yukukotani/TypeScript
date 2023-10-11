@@ -117,13 +117,6 @@ Info seq  [hh:mm:ss:mss] 	Files (5)
 	  File is ECMAScript module because 'package.json' has field "type" with value "module"
 
 Info seq  [hh:mm:ss:mss] -----------------------------------------------
-Info seq  [hh:mm:ss:mss] Calculating unresolved imports list of program:: Files:: 5
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.decorators.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.decorators.legacy.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /lib.d.ts:: []
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /src/bar.ts:: ["dependency"]
-Info seq  [hh:mm:ss:mss] New unresolvedImports for /src/foo.ts:: []
-Info seq  [hh:mm:ss:mss] Calculating unresolved imports list of program:: Files:: 5 Done: ["dependency"]
 Info seq  [hh:mm:ss:mss] event:
     {
       "seq": 0,
