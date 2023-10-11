@@ -181,7 +181,6 @@ import {
     SetTypings,
     ThrottledOperations,
     toNormalizedPath,
-    TypingsCache,
     WatchTypingLocations,
 } from "./_namespaces/ts.server";
 import * as protocol from "./protocol";
@@ -999,9 +998,6 @@ function createWatchFactoryHostUsingWatchEvents(service: ProjectService, canUseW
 
 export class ProjectService {
     /** @internal */
-    readonly typingsCache: TypingsCache;
-
-    /** @internal */
     readonly documentRegistry: DocumentRegistry;
 
     /**
@@ -1189,8 +1185,6 @@ export class ProjectService {
 
         this.typingsInstaller.attach(this);
 
-        this.typingsCache = new TypingsCache(this.typingsInstaller);
-
         this.hostConfiguration = {
             formatCodeOptions: getDefaultFormatCodeSettings(this.host.newLine),
             preferences: emptyOptions,
@@ -1303,20 +1297,16 @@ export class ProjectService {
         switch (response.kind) {
             case ActionSet:
                 // Update the typing files and update the project
-                project.updateTypingFiles(
-                    this.typingsCache.updateTypingsForProject(
-                        project,
-                        response.compilerOptions,
-                        response.typeAcquisition,
-                        response.unresolvedImports,
-                        response.typings,
-                    ),
-                    /*scheduleUpdate*/ true,
+                project.updateTypingsForProject(
+                    response.compilerOptions,
+                    response.typeAcquisition,
+                    response.unresolvedImports,
+                    response.typings,
                 );
                 return;
             case ActionInvalidate:
                 // Do not clear resolution cache, there was changes detected in typings, so enque typing request and let it get us correct results
-                this.typingsCache.enqueueInstallTypingsForProject(project, /*forceRefresh*/ true);
+                project.enqueueInstallTypingsForProject(/*forceRefresh*/ true);
                 return;
         }
     }
