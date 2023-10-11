@@ -155,7 +155,6 @@ import {
     ServerHost,
     Session,
     toNormalizedPath,
-    TypingsCache,
     updateProjectIfDirty,
 } from "./_namespaces/ts.server";
 import * as protocol from "./protocol";
@@ -596,19 +595,15 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     }
 
     isKnownTypesPackageName(name: string): boolean {
-        return this.typingsCache.isKnownTypesPackageName(name);
+        return this.projectService.typingsInstaller.isKnownTypesPackageName(name);
     }
     installPackage(options: InstallPackageOptions): Promise<ApplyCodeActionCommandResult> {
-        return this.typingsCache.installPackage({ ...options, projectName: this.projectName, projectRootPath: this.toPath(this.currentDirectory) });
+        return this.projectService.typingsInstaller.installPackage({ ...options, projectName: this.projectName, projectRootPath: this.toPath(this.currentDirectory) });
     }
 
     /** @internal */
     getGlobalTypingsCacheLocation() {
         return this.getGlobalCache();
-    }
-
-    private get typingsCache(): TypingsCache {
-        return this.projectService.typingsCache;
     }
 
     /** @internal */
