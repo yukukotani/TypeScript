@@ -311,6 +311,13 @@ const enum TypingWatcherType {
 
 type TypingWatchers = Map<Path, FileWatcher> & { isInvoked?: boolean; };
 
+const disabledTypeAcquisition: TypeAcquisition = {};
+const enabledTypeAcquisition: TypeAcquisition = {
+    enable: true,
+    include: ts.emptyArray,
+    exclude: ts.emptyArray,
+};
+
 export abstract class Project implements LanguageServiceHost, ModuleResolutionHost {
     private rootFiles: ScriptInfo[] = [];
     private rootFilesMap = new Map<string, ProjectRootFile>();
@@ -653,7 +660,6 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
                 (result || (result = [])).push(value.fileName);
             }
         });
-
         return addRange(result, this.typingFiles) || ts.emptyArray;
     }
 
@@ -1415,7 +1421,8 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     }
 
     /** @internal */
-    updateTypingFiles(typingFiles: SortedReadonlyArray<string>) {
+    updateTypingFiles(typingFiles: SortedReadonlyArray<string> | undefined, scheduleUpdate: boolean) {
+        if (!typingFiles?.length || !this.getTypeAcquisition().enable) typingFiles = emptyArray;
         // The typings files are result of types acquired based on unresolved imports and other structure
         // With respect to unresolved imports:
         // The first time we see unresolved import the TI will fetch the typing into cache and return it as part of typings file
@@ -1436,7 +1443,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             this.typingFiles = typingFiles;
             // Invalidate files with unresolved imports
             this.resolutionCache.setFilesWithInvalidatedNonRelativeUnresolvedImports(this.cachedUnresolvedImportsPerFile);
-            this.projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles(this);
+            if (scheduleUpdate) this.projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles(this);
         }
     }
 
@@ -1899,10 +1906,17 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         if (newTypeAcquisition) {
             this.typeAcquisition = this.removeLocalTypingsFromTypeAcquisition(newTypeAcquisition);
         }
+        else {
+            this.typeAcquisition = undefined;
+        }
+        // If the typeAcquition is disabled, dont use typing files as root
+        if (!this.getTypeAcquisition().enable) {
+            this.updateTypingFiles(/*typingFiles*/ undefined, /*scheduleUpdate*/ false);
+        }
     }
 
     getTypeAcquisition() {
-        return this.typeAcquisition || {};
+        return this.typeAcquisition ??= disabledTypeAcquisition;
     }
 
     /** @internal */
@@ -2310,6 +2324,7 @@ function extractUnresolvedImportsFromSourceFile(
  */
 export class InferredProject extends Project {
     private _isJsInferredProject = false;
+    private inferredTypeAcquisition: TypeAcquisition | undefined;
 
     toggleJsInferredProject(isJsInferredProject: boolean) {
         if (isJsInferredProject !== this._isJsInferredProject) {
@@ -2385,11 +2400,13 @@ export class InferredProject extends Project {
         else if (this.isOrphan() && this._isJsInferredProject && !info.isJavaScript()) {
             this.toggleJsInferredProject(/*isJsInferredProject*/ false);
         }
+        this.inferredTypeAcquisition = undefined;
         super.addRoot(info);
     }
 
     override removeRoot(info: ScriptInfo) {
         this.projectService.stopWatchingConfigFilesForInferredProjectRoot(info);
+        this.inferredTypeAcquisition = undefined;
         super.removeRoot(info);
         // Delay toggling to isJsInferredProject = false till we actually need it again
         if (!this.isOrphan() && this._isJsInferredProject && info.isJavaScript()) {
@@ -2417,12 +2434,13 @@ export class InferredProject extends Project {
         super.close();
     }
 
+    override setTypeAcquisition(newTypeAcquisition: ts.TypeAcquisition | undefined): void {
+        this.inferredTypeAcquisition = undefined;
+        super.setTypeAcquisition(newTypeAcquisition);
+    }
+
     override getTypeAcquisition(): TypeAcquisition {
-        return this.typeAcquisition || {
-            enable: allRootFilesAreJsOrDts(this),
-            include: ts.emptyArray,
-            exclude: ts.emptyArray,
-        };
+        return this.typeAcquisition || (this.inferredTypeAcquisition ??= allRootFilesAreJsOrDts(this) ? enabledTypeAcquisition : disabledTypeAcquisition);
     }
 }
 
