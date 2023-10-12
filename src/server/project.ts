@@ -155,6 +155,7 @@ import {
     ScriptInfo,
     ServerHost,
     Session,
+    SetTypings,
     toNormalizedPath,
     updateProjectIfDirty,
 } from "./_namespaces/ts.server";
@@ -636,7 +637,6 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         this.resolutionCache = createResolutionCache(
             this,
             this.currentDirectory,
-            /*logChangesWhenResolvingModule*/ true,
         );
         this.languageService = createLanguageService(this, this.documentRegistry, this.projectService.serverMode);
         if (lastFileExceededProgramSize) {
@@ -1427,15 +1427,17 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     updateGraph(): boolean {
         tracing?.push(tracing.Phase.Session, "updateGraph", { name: this.projectName, kind: ProjectKind[this.projectKind] });
         perfLogger?.logStartUpdateGraph();
-        const recordChangesToResolution = this.useTypingsFromGlobalCache();
-        if (recordChangesToResolution && this.cachedUnresolvedImportsPerFile.size) this.resolutionCache.startRecordingFilesWithChangedResolutions();
+        const useTypingsFromGlobalCache = this.useTypingsFromGlobalCache();
+        if (!useTypingsFromGlobalCache) this.resolutionCache.invalidateResolutionsWithGlobalCachePass();
+        else this.resolutionCache.invalidateResolutionsWithoutGlobalCachePass();
+        if (useTypingsFromGlobalCache && this.cachedUnresolvedImportsPerFile.size) this.resolutionCache.startRecordingFilesWithChangedResolutions();
 
         const hasNewProgram = this.updateGraphWorker();
         const hasAddedorRemovedFiles = this.hasAddedorRemovedFiles;
         this.hasAddedorRemovedFiles = false;
         this.hasAddedOrRemovedSymlinks = false;
 
-        if (recordChangesToResolution) {
+        if (useTypingsFromGlobalCache) {
             const changedFiles: readonly Path[] = this.resolutionCache.finishRecordingFilesWithChangedResolutions() || emptyArray;
             for (const file of changedFiles) {
                 // delete cached information for changed files
@@ -1512,24 +1514,14 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     }
 
     /** @internal */
-    updateTypingsForProject(
-        compilerOptions: CompilerOptions,
-        typeAcquisition: TypeAcquisition,
-        unresolvedImports: SortedReadonlyArray<string>,
-        newTypings: string[],
-    ) {
+    updateTypingsForProject({ compilerOptions, typeAcquisition, unresolvedImports, typings }: SetTypings) {
         if (!this.getTypeAcquisition().enable) return;
         this.typingsCacheEntry = {
             compilerOptions,
             typeAcquisition,
             unresolvedImports,
         };
-        return this.updateTypingFiles(sort(newTypings), /*scheduleUpdate*/ true);
-    }
-
-    /** @internal */
-    updateTypingFiles(typingFiles: SortedReadonlyArray<string> | undefined, scheduleUpdate: boolean) {
-        if (!typingFiles?.length || !this.getTypeAcquisition().enable) typingFiles = emptyArray;
+        const typingFiles = typings.length ? sort(typings) : emptyArray;
         // The typings files are result of types acquired based on unresolved imports and other structure
         // With respect to unresolved imports:
         // The first time we see unresolved import the TI will fetch the typing into cache and return it as part of typings file
@@ -1550,7 +1542,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             this.typingFiles = typingFiles;
             // Invalidate files with unresolved imports
             this.resolutionCache.setFilesWithInvalidatedNonRelativeUnresolvedImports(this.cachedUnresolvedImportsPerFile);
-            if (scheduleUpdate) this.projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles(this);
+            this.projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles(this);
         }
     }
 
@@ -2016,7 +2008,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         }
         // If the typeAcquition is disabled, dont use typing files as root and close existing watchers from TI
         if (!this.getTypeAcquisition().enable) {
-            this.updateTypingFiles(/*typingFiles*/ undefined, /*scheduleUpdate*/ false);
+            this.typingFiles = emptyArray;
             if (this.typingsCacheEntry) {
                 this.typingsCacheEntry = undefined;
                 this.projectService.typingsInstaller.onProjectClosed(this);
