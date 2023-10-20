@@ -1141,6 +1141,7 @@ export class ProjectService {
 
     /** @internal */ verifyDocumentRegistry = noop;
     /** @internal */ verifyProgram: (project: Project) => void = noop;
+    /** @internal */ verifyUnresovedImports: (project: Project) => void = noop;
     /** @internal */ onProjectCreation: (project: Project) => void = noop;
 
     readonly jsDocParsingMode: JSDocParsingMode | undefined;
