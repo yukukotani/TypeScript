@@ -124,6 +124,8 @@ Info seq  [hh:mm:ss:mss] event:
         }
       }
     }
+Info seq  [hh:mm:ss:mss] Search path: /user/username/projects/myproject/src/server
+Info seq  [hh:mm:ss:mss] For info: /user/username/projects/myproject/src/server/tsconfig.json :: No config files found.
 Info seq  [hh:mm:ss:mss] event:
     {
       "seq": 0,

@@ -182,6 +182,8 @@ Info seq  [hh:mm:ss:mss] event:
         ]
       }
     }
+Info seq  [hh:mm:ss:mss] Search path: /A/B
+Info seq  [hh:mm:ss:mss] For info: /A/B/tsconfig.json :: No config files found.
 Info seq  [hh:mm:ss:mss] event:
     {
       "seq": 0,

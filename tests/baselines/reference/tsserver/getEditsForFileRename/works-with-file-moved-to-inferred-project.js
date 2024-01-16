@@ -238,6 +238,8 @@ Info seq  [hh:mm:ss:mss] request:
     }
 Info seq  [hh:mm:ss:mss] Search path: /
 Info seq  [hh:mm:ss:mss] For info: /c.ts :: Config file name: /tsconfig.json
+Info seq  [hh:mm:ss:mss] Search path: /
+Info seq  [hh:mm:ss:mss] For info: /tsconfig.json :: No config files found.
 Info seq  [hh:mm:ss:mss] event:
     {
       "seq": 0,

@@ -923,6 +923,8 @@ Info seq  [hh:mm:ss:mss] request:
 Info seq  [hh:mm:ss:mss] FileWatcher:: Close:: WatchInfo: /user/username/projects/myproject/foo/lib/index.d.ts 500 undefined WatchType: Closed Script info
 Info seq  [hh:mm:ss:mss] Search path: /user/username/projects/myproject/foo/lib
 Info seq  [hh:mm:ss:mss] For info: /user/username/projects/myproject/foo/lib/index.d.ts :: Config file name: /user/username/projects/myproject/foo/tsconfig.json
+Info seq  [hh:mm:ss:mss] Search path: /user/username/projects/myproject/foo
+Info seq  [hh:mm:ss:mss] For info: /user/username/projects/myproject/foo/tsconfig.json :: No config files found.
 Info seq  [hh:mm:ss:mss] Project '/user/username/projects/myproject/bar/tsconfig.json' (Configured)
 Info seq  [hh:mm:ss:mss] 	Files (3)
 

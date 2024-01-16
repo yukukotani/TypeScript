@@ -126,6 +126,8 @@ Info seq  [hh:mm:ss:mss] event:
         }
       }
     }
+Info seq  [hh:mm:ss:mss] Search path: /a/b
+Info seq  [hh:mm:ss:mss] For info: /a/b/tsconfig.json :: No config files found.
 Info seq  [hh:mm:ss:mss] event:
     {
       "seq": 0,
@@ -281,6 +283,8 @@ Info seq  [hh:mm:ss:mss] request:
     }
 Info seq  [hh:mm:ss:mss] Search path: /a/b
 Info seq  [hh:mm:ss:mss] For info: /a/b/test2.ts :: Config file name: /a/b/tsconfig.json
+Info seq  [hh:mm:ss:mss] Search path: /a/b
+Info seq  [hh:mm:ss:mss] For info: /a/b/tsconfig.json :: No config files found.
 Info seq  [hh:mm:ss:mss] event:
     {
       "seq": 0,

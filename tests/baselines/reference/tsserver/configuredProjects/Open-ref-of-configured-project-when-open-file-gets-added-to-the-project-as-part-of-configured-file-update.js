@@ -228,6 +228,8 @@ Info seq  [hh:mm:ss:mss] request:
     }
 Info seq  [hh:mm:ss:mss] Search path: /a/b/src
 Info seq  [hh:mm:ss:mss] For info: /a/b/src/file2.ts :: Config file name: /a/b/tsconfig.json
+Info seq  [hh:mm:ss:mss] Search path: /a/b
+Info seq  [hh:mm:ss:mss] For info: /a/b/tsconfig.json :: No config files found.
 Info seq  [hh:mm:ss:mss] event:
     {
       "seq": 0,
@@ -500,20 +502,23 @@ ScriptInfos::
 Info seq  [hh:mm:ss:mss] FileWatcher:: Triggered with /a/b/tsconfig.json 1:: WatchInfo: /a/b/tsconfig.json 2000 undefined Project: /a/b/tsconfig.json WatchType: Config file
 Info seq  [hh:mm:ss:mss] Scheduled: /a/b/tsconfig.json
 Info seq  [hh:mm:ss:mss] Search path: /a/b/src
+Info seq  [hh:mm:ss:mss] For info: /a/b/src/file1.ts :: Config file name: /a/b/tsconfig.json
+Info seq  [hh:mm:ss:mss] Search path: /a/b/src
 Info seq  [hh:mm:ss:mss] For info: /a/b/src/file2.ts :: Config file name: /a/b/tsconfig.json
-Info seq  [hh:mm:ss:mss] Scheduled: /a/b/tsconfig.json, Cancelled earlier one
+Info seq  [hh:mm:ss:mss] Search path: /a/b
+Info seq  [hh:mm:ss:mss] For info: /a/b/file3.ts :: Config file name: /a/b/tsconfig.json
 Info seq  [hh:mm:ss:mss] Scheduled: *ensureProjectForOpenFiles*
 Info seq  [hh:mm:ss:mss] Elapsed:: *ms FileWatcher:: Triggered with /a/b/tsconfig.json 1:: WatchInfo: /a/b/tsconfig.json 2000 undefined Project: /a/b/tsconfig.json WatchType: Config file
 Before running Timeout callback:: count: 2
-2: /a/b/tsconfig.json
-3: *ensureProjectForOpenFiles*
+1: /a/b/tsconfig.json
+2: *ensureProjectForOpenFiles*
 //// [/a/b/tsconfig.json]
 {}
 
 
 Timeout callback:: count: 2
-2: /a/b/tsconfig.json *new*
-3: *ensureProjectForOpenFiles* *new*
+1: /a/b/tsconfig.json *new*
+2: *ensureProjectForOpenFiles* *new*
 
 Projects::
 /a/b/tsconfig.json (Configured) *changed*
