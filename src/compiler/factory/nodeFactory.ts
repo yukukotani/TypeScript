@@ -34,6 +34,7 @@ import {
     CallChain,
     CallExpression,
     CallSignatureDeclaration,
+    CallThisExpression,
     CaseBlock,
     CaseClause,
     CaseOrDefaultClause,
@@ -644,6 +645,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         updateElementAccessChain,
         createCallExpression,
         updateCallExpression,
+        createCallThisExpression,
+        updateCallThisExpression,
         createCallChain,
         updateCallChain,
         createNewExpression,
@@ -3073,6 +3076,44 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
                 || node.typeArguments !== typeArguments
                 || node.arguments !== argumentsArray
             ? update(createCallChain(expression, questionDotToken, typeArguments, argumentsArray), node)
+            : node;
+    }
+
+    function createBaseCallThisExpression(receiver: LeftHandSideExpression, name: Identifier, typeArguments: NodeArray<TypeNode> | undefined, argumentsArray: NodeArray<Expression>) {
+        const node = createBaseDeclaration<CallThisExpression>(SyntaxKind.CallThisExpression);
+        node.receiver = receiver;
+        node.name = name;
+        node.typeArguments = typeArguments;
+        node.arguments = argumentsArray;
+        node.transformFlags |= TransformFlags.ContainsESNext |
+            propagateChildFlags(node.receiver) |
+            propagateChildFlags(node.name) |
+            propagateChildrenFlags(node.typeArguments) |
+            propagateChildrenFlags(node.arguments);
+        if (node.typeArguments) {
+            node.transformFlags |= TransformFlags.ContainsTypeScript;
+        }
+        return node;
+    }
+
+     // @api
+     function createCallThisExpression(receiver: Expression, name: Identifier, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined) {
+        const node = createBaseCallThisExpression(
+            parenthesizerRules().parenthesizeLeftSideOfAccess(receiver, /*optionalChain*/ false),
+            name,
+            asNodeArray(typeArguments),
+            parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(createNodeArray(argumentsArray)),
+        );
+        return node;
+    }
+
+    // @api
+    function updateCallThisExpression(node: CallThisExpression, receiver: Expression, name: Identifier, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[]) {
+        return node.receiver !== receiver
+                || node.name !== name
+                || node.typeArguments !== typeArguments
+                || node.arguments !== argumentsArray
+            ? update(createCallThisExpression(receiver, name, typeArguments, argumentsArray), node)
             : node;
     }
 
