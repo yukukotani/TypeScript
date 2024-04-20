@@ -102,6 +102,7 @@ export const enum SyntaxKind {
     CaretToken,
     ExclamationToken,
     TildeToken,
+    TildeGreaterThanToken,
     AmpersandAmpersandToken,
     BarBarToken,
     QuestionToken,
