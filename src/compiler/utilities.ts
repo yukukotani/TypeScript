@@ -3357,6 +3357,7 @@ export function isExpressionNode(node: Node): boolean {
         case SyntaxKind.PropertyAccessExpression:
         case SyntaxKind.ElementAccessExpression:
         case SyntaxKind.CallExpression:
+        case SyntaxKind.CallThisExpression:
         case SyntaxKind.NewExpression:
         case SyntaxKind.TaggedTemplateExpression:
         case SyntaxKind.AsExpression:

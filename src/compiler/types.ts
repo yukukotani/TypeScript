@@ -1094,6 +1094,7 @@ export type HasChildren =
     | PropertyAccessExpression
     | ElementAccessExpression
     | CallExpression
+    | CallThisExpression
     | NewExpression
     | TaggedTemplateExpression
     | TypeAssertion

@@ -1064,6 +1064,16 @@ const visitEachChildTable: VisitEachChildTable = {
             );
     },
 
+    [SyntaxKind.CallThisExpression]: function visitEachChildOfCallThisExpression(node, visitor, context, nodesVisitor, nodeVisitor, _tokenVisitor) {
+        return context.factory.updateCallThisExpression(
+            node,
+            Debug.checkDefined(nodeVisitor(node.receiver, visitor, isExpression)),
+            Debug.checkDefined(nodeVisitor(node.name, visitor, isIdentifier)),
+            nodesVisitor(node.typeArguments, visitor, isTypeNode),
+            nodesVisitor(node.arguments, visitor, isExpression),
+        );
+    },
+
     [SyntaxKind.NewExpression]: function visitEachChildOfNewExpression(node, visitor, context, nodesVisitor, nodeVisitor, _tokenVisitor) {
         return context.factory.updateNewExpression(
             node,
