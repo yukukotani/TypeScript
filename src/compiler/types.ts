@@ -3028,7 +3028,7 @@ export type OptionalChainRoot =
 export interface CallThisExpression extends LeftHandSideExpression, Declaration {
     readonly kind: SyntaxKind.CallThisExpression;
     readonly receiver: LeftHandSideExpression;
-    readonly name: Identifier;
+    readonly expression: Expression;
     readonly typeArguments?: NodeArray<TypeNode>;
     readonly arguments: NodeArray<Expression>;
 }
@@ -3113,6 +3113,7 @@ export interface InstanceofExpression extends BinaryExpression {
 
 export type CallLikeExpression =
     | CallExpression
+    | CallThisExpression
     | NewExpression
     | TaggedTemplateExpression
     | Decorator
@@ -8710,8 +8711,8 @@ export interface NodeFactory {
     updateCallExpression(node: CallExpression, expression: Expression, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[]): CallExpression;
     createCallChain(expression: Expression, questionDotToken: QuestionDotToken | undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): CallChain;
     updateCallChain(node: CallChain, expression: Expression, questionDotToken: QuestionDotToken | undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[]): CallChain;
-    createCallThisExpression(receiver: Expression, name: Identifier, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): CallThisExpression;
-    updateCallThisExpression(node: CallThisExpression, receiver: Expression, name: Identifier, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[]): CallThisExpression;
+    createCallThisExpression(receiver: Expression, expression: Expression, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): CallThisExpression;
+    updateCallThisExpression(node: CallThisExpression, receiver: Expression, expression: Expression, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[]): CallThisExpression;
     createNewExpression(expression: Expression, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
     updateNewExpression(node: NewExpression, expression: Expression, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
     createTaggedTemplateExpression(tag: Expression, typeArguments: readonly TypeNode[] | undefined, template: TemplateLiteral): TaggedTemplateExpression;

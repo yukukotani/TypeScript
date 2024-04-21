@@ -6,6 +6,7 @@ import {
     BindingElement,
     Block,
     Bundle,
+    CallThisExpression,
     CaseOrDefaultClause,
     chainBundle,
     ClassDeclaration,
@@ -123,6 +124,9 @@ export function transformESNext(context: TransformationContext): (x: SourceFile 
 
             case SyntaxKind.SwitchStatement:
                 return visitSwitchStatement(node as SwitchStatement);
+
+            case SyntaxKind.CallThisExpression:
+                return visitCallThisExpression(node as CallThisExpression);
 
             default:
                 return visitEachChild(node, visitor, context);
@@ -405,6 +409,12 @@ export function transformESNext(context: TransformationContext): (x: SourceFile 
         }
 
         return visitEachChild(node, visitor, context);
+    }
+
+    function visitCallThisExpression(node: CallThisExpression) {
+        const callee = factory.createPropertyAccessExpression(node.expression, "call");
+        const argumentsArray = [node.receiver, ...node.arguments];
+        return factory.createCallExpression(callee, node.typeArguments, argumentsArray);
     }
 
     /**

@@ -1068,7 +1068,7 @@ const visitEachChildTable: VisitEachChildTable = {
         return context.factory.updateCallThisExpression(
             node,
             Debug.checkDefined(nodeVisitor(node.receiver, visitor, isExpression)),
-            Debug.checkDefined(nodeVisitor(node.name, visitor, isIdentifier)),
+            Debug.checkDefined(nodeVisitor(node.expression, visitor, isIdentifier)),
             nodesVisitor(node.typeArguments, visitor, isTypeNode),
             nodesVisitor(node.arguments, visitor, isExpression),
         );

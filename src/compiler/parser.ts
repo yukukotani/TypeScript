@@ -1164,7 +1164,7 @@ function forEachChildInCallOrNewExpression<T>(node: CallExpression | NewExpressi
 
 function forEachChildInCallThisExpression<T>(node: CallThisExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     return visitNode(cbNode, node.receiver) ||
-        visitNode(cbNode, node.name) ||
+        visitNode(cbNode, node.expression) ||
         visitNodes(cbNode, cbNodes, node.typeArguments) ||
         visitNodes(cbNode, cbNodes, node.arguments);
 }

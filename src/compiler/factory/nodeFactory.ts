@@ -3079,15 +3079,15 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             : node;
     }
 
-    function createBaseCallThisExpression(receiver: LeftHandSideExpression, name: Identifier, typeArguments: NodeArray<TypeNode> | undefined, argumentsArray: NodeArray<Expression>) {
+    function createBaseCallThisExpression(receiver: LeftHandSideExpression, expression: Expression, typeArguments: NodeArray<TypeNode> | undefined, argumentsArray: NodeArray<Expression>) {
         const node = createBaseDeclaration<CallThisExpression>(SyntaxKind.CallThisExpression);
         node.receiver = receiver;
-        node.name = name;
+        node.expression = expression;
         node.typeArguments = typeArguments;
         node.arguments = argumentsArray;
         node.transformFlags |= TransformFlags.ContainsESNext |
             propagateChildFlags(node.receiver) |
-            propagateChildFlags(node.name) |
+            propagateChildFlags(node.expression) |
             propagateChildrenFlags(node.typeArguments) |
             propagateChildrenFlags(node.arguments);
         if (node.typeArguments) {
@@ -3097,10 +3097,10 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
      // @api
-     function createCallThisExpression(receiver: Expression, name: Identifier, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined) {
+     function createCallThisExpression(receiver: Expression, expression: Expression, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined) {
         const node = createBaseCallThisExpression(
             parenthesizerRules().parenthesizeLeftSideOfAccess(receiver, /*optionalChain*/ false),
-            name,
+            parenthesizerRules().parenthesizeRightSideOfBinary(SyntaxKind.TildeGreaterThanToken, receiver, expression),
             asNodeArray(typeArguments),
             parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(createNodeArray(argumentsArray)),
         );
@@ -3108,12 +3108,12 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function updateCallThisExpression(node: CallThisExpression, receiver: Expression, name: Identifier, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[]) {
+    function updateCallThisExpression(node: CallThisExpression, receiver: Expression, expression: Expression, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[]) {
         return node.receiver !== receiver
-                || node.name !== name
+                || node.expression !== expression
                 || node.typeArguments !== typeArguments
                 || node.arguments !== argumentsArray
-            ? update(createCallThisExpression(receiver, name, typeArguments, argumentsArray), node)
+            ? update(createCallThisExpression(receiver, expression, typeArguments, argumentsArray), node)
             : node;
     }
 
