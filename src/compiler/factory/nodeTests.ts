@@ -21,6 +21,7 @@ import {
     Bundle,
     CallExpression,
     CallSignatureDeclaration,
+    CallThisExpression,
     CaseBlock,
     CaseClause,
     CaseKeyword,
@@ -590,6 +591,10 @@ export function isElementAccessExpression(node: Node): node is ElementAccessExpr
 
 export function isCallExpression(node: Node): node is CallExpression {
     return node.kind === SyntaxKind.CallExpression;
+}
+
+export function isCallThisExpression(node: Node): node is CallThisExpression {
+    return node.kind === SyntaxKind.CallThisExpression;
 }
 
 export function isNewExpression(node: Node): node is NewExpression {
