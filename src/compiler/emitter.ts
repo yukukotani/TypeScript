@@ -19,6 +19,7 @@ import {
     BuildInfo,
     Bundle,
     CallExpression,
+    CallThisExpression,
     CallSignatureDeclaration,
     canHaveLocals,
     CaseBlock,
@@ -1881,6 +1882,8 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
                     return emitElementAccessExpression(node as ElementAccessExpression);
                 case SyntaxKind.CallExpression:
                     return emitCallExpression(node as CallExpression);
+                case SyntaxKind.CallThisExpression:
+                    return emitCallThisExpression(node as CallThisExpression);
                 case SyntaxKind.NewExpression:
                     return emitNewExpression(node as NewExpression);
                 case SyntaxKind.TaggedTemplateExpression:
@@ -2662,6 +2665,14 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
             writePunctuation(")");
         }
         emit(node.questionDotToken);
+        emitTypeArguments(node, node.typeArguments);
+        emitExpressionList(node, node.arguments, ListFormat.CallExpressionArguments, parenthesizer.parenthesizeExpressionForDisallowedComma);
+    }
+
+    function emitCallThisExpression(node: CallThisExpression) {
+        emitExpression(node.receiver, parenthesizer.parenthesizeLeftSideOfAccess);
+        emitTokenWithComment(SyntaxKind.TildeGreaterThanToken, node.receiver.end, writePunctuation, node);
+        emit(node.name);
         emitTypeArguments(node, node.typeArguments);
         emitExpressionList(node, node.arguments, ListFormat.CallExpressionArguments, parenthesizer.parenthesizeExpressionForDisallowedComma);
     }
